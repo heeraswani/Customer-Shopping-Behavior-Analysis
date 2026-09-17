@@ -1,2 +1,294 @@
-# Customer-Shopping-Behavior-Analysis
-Customer shopping behavior analysis using Python, SQL Server, and Power BI — covering data cleaning, T-SQL business queries, and an interactive dashboard on revenue, ratings, and customer segmentation.
+# Customer Shopping Behavior Analysis
+
+**An end-to-end retail analytics project — from raw transaction data to an interactive Power BI dashboard — covering data cleaning, SQL analysis, and business insight generation.**
+
+---
+
+## 📌 Project Overview
+
+This project analyzes a retail customer shopping transactions dataset to understand purchasing patterns, revenue drivers, and customer segments. Raw data is cleaned and feature-engineered in Python, loaded into SQL Server for structured business-question querying, and visualized in an interactive Power BI dashboard.
+
+The final deliverable is a single-page Power BI dashboard that gives stakeholders an at-a-glance view of customer counts, average spend, ratings, category performance, age-group behavior, and subscription trends — filterable by shipping type, subscription status, category, and gender.
+
+---
+
+## 🎯 Business Problem
+
+A retail business wants to understand how its customers shop: which product categories and age groups generate the most revenue, whether subscribers and non-subscribers behave differently, how discounts relate to purchases, and how loyal the customer base is. Answering these questions supports better decisions on marketing focus, inventory priority, and customer retention.
+
+---
+
+## 🎯 Objectives
+
+- Clean and prepare raw customer shopping transaction data
+- Engineer new features (age groups, purchase frequency in days) to support segmentation
+- Load the cleaned dataset into SQL Server and answer core business questions using T-SQL
+- Segment customers into New, Returning, and Loyal groups based on purchase history
+- Build an interactive Power BI dashboard summarizing customer behavior and revenue patterns
+
+---
+
+## 🛠️ Tools & Technologies
+
+```text
+Python (Pandas)
+Jupyter Notebook
+SQL Server (T-SQL)
+SQLAlchemy
+pyodbc
+Power BI
+Power Query
+DAX
+```
+
+---
+
+## 📂 Dataset
+
+- **Dataset name:** `customer_shopping_behavior.csv`
+- **Data source:** Not specified within the project files
+- **Number of records:** 3,900
+- **Number of columns:** 18
+
+| Field | Business Meaning |
+|---|---|
+| Customer ID | Unique identifier per customer |
+| Age | Customer age |
+| Gender | Male / Female |
+| Item Purchased | Specific product bought |
+| Category | Product category (Clothing, Footwear, Outerwear, Accessories) |
+| Purchase Amount (USD) | Transaction value |
+| Location | Customer's US state |
+| Size | Product size |
+| Color | Product color |
+| Season | Season of purchase |
+| Review Rating | Customer's product rating (2.5–5.0) |
+| Subscription Status | Whether the customer is subscribed |
+| Shipping Type | Delivery method used |
+| Discount Applied | Whether a discount was applied |
+| Promo Code Used | Whether a promo code was used |
+| Previous Purchases | Count of prior purchases by the customer |
+| Payment Method | Payment type used |
+| Frequency of Purchases | How often the customer typically shops |
+
+**Data types:** 4 integer columns, 1 float column (Review Rating), 13 text/categorical columns.
+
+---
+
+## 🔄 Project Workflow
+
+```text
+Data Collection (CSV)
+      ↓
+Data Cleaning & Preprocessing (Python)
+      ↓
+Feature Engineering (Python)
+      ↓
+Load to SQL Server (SQLAlchemy / pyodbc)
+      ↓
+Business Question Analysis (T-SQL)
+      ↓
+Power BI Data Modeling & DAX Measures
+      ↓
+Dashboard Development
+      ↓
+Business Insights
+```
+
+---
+
+## 🐍 Python Analysis
+
+Performed in `Python/customer.ipynb` using **Pandas**:
+
+- **Data loading & inspection:** `df.head()`, `df.info()`, `df.describe(include='all')` to profile the raw dataset
+- **Missing-value handling:** Identified 37 missing values in `Review Rating` and imputed them using the **median rating per product category** (`groupby('Category').transform`)
+- **Duplicate/redundancy check:** Verified that `Discount Applied` and `Promo Code Used` were identical across all rows and dropped the redundant `Promo Code Used` column
+- **Data cleaning:** Standardized column names to lowercase snake_case (e.g., `Purchase Amount (USD)` → `purchase_amount`)
+- **Feature engineering:**
+  - `age_group` — created via quantile binning (`pd.qcut`) into four equal-sized groups: *Young Adult, Adult, Middle-aged, Senior*
+  - `purchase_frequency_days` — mapped the categorical `Frequency of Purchases` field (e.g., Weekly, Monthly, Annually) to an approximate number of days between purchases
+- **Data export:** Loaded the cleaned DataFrame into a SQL Server database (`customer_behavior`, table `customer`) using **SQLAlchemy** with a **pyodbc**/ODBC Driver 18 connection, for further analysis in T-SQL
+
+> Note: Exploratory visualization was not performed in Python for this project — charting and EDA were handled in Power BI.
+
+---
+
+## 🗄️ SQL Analysis
+
+Performed in `SQL/SQLQuery1.sql` against the `customer_behavior` database (table: `customer`). Queries written include:
+
+- Total revenue generated by male vs. female customers
+- Discounted transactions with a purchase amount above the overall average
+- Top 5 products by average review rating
+- Average purchase amount by shipping type (Standard vs. Express)
+- Average spend and total revenue by subscription status
+- Top 5 products by percentage of transactions with a discount applied
+- Customer segmentation into **New** (0 previous purchases), **Returning** (1–10), and **Loyal** (11+) using a `CASE WHEN` expression
+- Top 3 best-selling products within each category, using a `ROW_NUMBER()` window function partitioned by category
+
+---
+
+## 📊 Power BI Dashboard
+
+Built in `POWERBI/customer_behavior_dashboard.pbix` — a single-page dashboard titled **"Customer Behavior Dashboard."**
+
+**KPI Cards**
+- Number of Customers
+- Average Purchase Amount
+- Average Review Rating
+
+**Charts & Visuals**
+- Clustered column chart — customer count by product **Category**
+- Clustered column chart — total purchase revenue by product **Category**
+- Clustered bar chart — customer count by **Age Group**
+- Clustered bar chart — total purchase revenue by **Age Group**
+- Donut chart — customer count by **Subscription Status**
+
+**Slicers / Filters**
+- Shipping Type
+- Subscription Status
+- Category
+- Gender
+
+**Data Model:** Single fact table (`customer`) with DAX measures for customer count, average purchase amount, and average review rating.
+
+---
+
+## 🖼️ Dashboard Preview
+
+No dashboard screenshots are currently included in the project. Add exported images to a `screenshots/` folder and reference them here, for example:
+
+```markdown
+![Power BI Dashboard](screenshots/dashboard.png)
+```
+
+---
+
+## 📈 Key KPIs
+
+| KPI | Description |
+|---|---|
+| Number of Customers | 3,900 |
+| Average Purchase Amount | $59.76 |
+| Average Review Rating | 3.75 |
+
+---
+
+## 🔍 Key Insights
+
+- **Clothing dominates revenue and volume:** Clothing is both the most purchased category (1,737 transactions) and the top revenue generator ($104,264), followed by Accessories ($74,200).
+- **Male customers account for the majority of revenue:** Male customers generated $157,890 vs. $75,191 for female customers — consistent with males also making up the larger share of the customer base (2,652 vs. 1,248).
+- **Highly rated categories:** Gloves, Sandals, and Boots have the highest average review ratings among all purchased items.
+- **Heavily discounted items:** Hats, Sneakers, and Coats have the highest share of discounted transactions, each with close to half of their purchases discounted.
+- **Customer loyalty is strong:** 3,116 of 3,900 customers (80%) fall into the "Loyal" segment (11+ previous purchases); the remainder are "Returning" — no customers in the dataset have zero previous purchases.
+- **Non-subscribers drive more total revenue:** Non-subscribers ($170,436) generate substantially more total revenue than subscribers ($62,645), though this reflects their larger share of the customer base (2,847 vs. 1,053) rather than higher average spend, which is nearly identical between the two groups.
+- **Revenue by age group is fairly balanced:** Young Adults contribute the most revenue ($62,143), with Adult, Middle-aged, and Senior groups all in a similar $55,700–$59,200 range.
+
+---
+
+## 💡 Business Recommendations
+
+- **Prioritize Clothing and Accessories** in inventory and marketing investment, as they together account for the large majority of revenue.
+- **Review discount depth on Hats, Sneakers, and Coats**, where nearly half of all sales already include a discount — assess the margin impact and whether discounting is still needed to drive volume.
+- **Investigate the female customer segment**, which is smaller in size but may represent an underserved growth opportunity.
+- **Design targeted campaigns for non-subscribers**, since they represent the majority of both customers and revenue but sit outside any subscription-based retention program.
+- **Use high-rating categories (Gloves, Sandals, Boots)** as trust-building highlights in promotional and marketing content.
+
+---
+
+## 🗂️ Project Structure
+
+```text
+Customer-Shopping-Behavior-Analysis/
+│
+├── DATASET/
+│   └── customer_shopping_behavior.csv
+├── POWERBI/
+│   └── customer_behavior_dashboard.pbix
+├── Python/
+│   └── customer.ipynb
+├── SQL/
+│   └── SQLQuery1.sql
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## ▶️ How to Run the Project
+
+### Clone the repository
+
+```bash
+git clone YOUR_REPOSITORY_URL
+cd Customer-Shopping-Behavior-Analysis
+```
+
+### Install Python dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Run the Python analysis
+
+Open `Python/customer.ipynb` in Jupyter Notebook or JupyterLab and run the cells in order to reproduce the data cleaning and feature engineering steps.
+
+### Run the SQL analysis
+
+1. Restore/load `DATASET/customer_shopping_behavior.csv` into a SQL Server database named `customer_behavior`, in a table named `customer` (the notebook includes a SQLAlchemy/pyodbc script to do this automatically once the connection details are updated for your environment).
+2. Open `SQL/SQLQuery1.sql` in SQL Server Management Studio (SSMS) and run the queries against that database.
+
+### Open the Power BI dashboard
+
+Open `POWERBI/customer_behavior_dashboard.pbix` in Power BI Desktop.
+
+---
+
+## 📦 Requirements
+
+```text
+pandas
+SQLAlchemy
+pyodbc
+```
+
+---
+
+## 🧠 Skills Demonstrated
+
+- Data Cleaning & Preprocessing
+- Missing-Value Imputation
+- Feature Engineering
+- SQL (T-SQL, CTEs, Window Functions)
+- Python (Pandas)
+- Power BI Dashboard Development
+- DAX Measures & Data Modeling
+- Business Insight Generation
+- Data-Driven Decision Making
+
+---
+
+## 💼 Business Impact
+
+This project turns raw transaction-level data into a structured, queryable analysis and a self-service dashboard. It allows a retail business to quickly identify which categories, age groups, and customer segments drive revenue, evaluate the effect of discounting, and compare subscriber vs. non-subscriber behavior — supporting more informed marketing, inventory, and retention decisions.
+
+---
+
+## 🚀 Future Improvements
+
+- Automate data refresh from the source system into SQL Server and Power BI
+- Add dashboard screenshots and a walkthrough to this README
+- Expand the SQL analysis with time-based/seasonal trend queries
+- Add predictive analysis (e.g., churn or next-purchase likelihood)
+- Parameterize the SQL Server connection for easier setup across environments
+
+---
+
+## 👤 Author
+
+```text
+LinkedIn: https://www.linkedin.com/in/heeraswani1190/
+GitHub:https://github.com/heeraswani
+```
