@@ -286,9 +286,4 @@ This project turns raw transaction-level data into a structured, queryable analy
 
 ---
 
-## 👤 Author
 
-```text
-LinkedIn: https://www.linkedin.com/in/heeraswani1190/
-GitHub:https://github.com/heeraswani
-```
